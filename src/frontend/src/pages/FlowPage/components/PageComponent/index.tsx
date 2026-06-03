@@ -47,7 +47,7 @@ import {
 import {
   buildGraphDiffOperations,
   buildInverseFlowOperations,
-  buildUpdateNodesOperation,
+  buildSetNodeFieldUpdate,
 } from "@/hooks/flows/flow-operation-diff";
 import useApplyFlowToCanvas from "@/hooks/flows/use-apply-flow-to-canvas";
 import useAutoSaveFlow from "@/hooks/flows/use-autosave-flow";
@@ -682,7 +682,18 @@ function PageComponent({
           (canvasNode) => canvasNode.selected || canvasNode.id === node.id,
         );
         if (movedNodes.length > 0) {
-          const operations = [buildUpdateNodesOperation(movedNodes)];
+          const operations = [
+            {
+              type: "update_nodes" as const,
+              updates: movedNodes.map((movedNode) =>
+                buildSetNodeFieldUpdate(
+                  movedNode.id,
+                  ["position"],
+                  movedNode.position,
+                ),
+              ),
+            },
+          ];
           const previousGraph = graphBeforeDragRef.current;
           onCollaborationOperations(
             operations,
